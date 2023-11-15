@@ -1,7 +1,6 @@
 import os
 import requests
 import json
-from dotenv import load_dotenv
 from tqdm import tqdm
 
 
@@ -155,13 +154,16 @@ class app:
             json.dump(saveData, f, indent=4)
 
 
-load_dotenv()
+if __name__ == "__main__":
+    from dotenv import load_dotenv
 
-protocol = os.getenv("PROTOCOL")
-host = os.getenv("HOST")
-port = os.getenv("PORT")
-username = os.getenv("USERNAME")
-password = os.getenv("PASSWORD")
-org = os.getenv("ORG")
+    load_dotenv()
 
-app = app(protocol, host, port, username, password, org)
+    protocol = os.getenv("PROTOCOL")
+    host = os.getenv("HOST")
+    port = os.getenv("PORT")
+    username = os.getenv("USERNAME")
+    password = os.getenv("PASSWORD")
+    org = os.getenv("ORG")
+
+    app = app(protocol, host, port, username, password, org)
