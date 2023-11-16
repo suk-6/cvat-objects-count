@@ -1,22 +1,13 @@
-import os
 import requests
 import json
 from tqdm import tqdm
+from utils.util import api
 
 
 class app:
-    def __init__(self, protocol, host, port, username, password, org, taskID=None):
-        self.protocol = protocol
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-        self.org = org
+    def __init__(self, params, taskID=None):
+        self.API = api(params)
         self.taskID = taskID
-
-        self.url = f"{self.protocol}://{self.host}:{self.port}/api"
-
-        self.login()
 
         if self.taskID is not None:
             if type(self.taskID) is int:
@@ -24,12 +15,12 @@ class app:
             else:
                 self.tasksID = self.taskID
         else:
-            self.tasks = self.getTasks()
+            self.tasks = self.API.getTasks()
             self.tasksID = self.getTasksID()
 
-        self.jobs = self.getJobs()
+        self.jobs = self.API.getJobs()
         self.taskToJob = self.matchTaskToJob()
-        self.labels = self.getLabels()
+        self.labels = self.API.getLabels()
 
         self.counts, self.totals = self.count()
         self.result = self.taskResult()
@@ -37,29 +28,6 @@ class app:
         self.statistics = self.calcStatistics()
 
         self.save()
-
-    def login(self):
-        url = f"{self.url}/auth/login"
-        payload = {"username": self.username, "password": self.password}
-        headers = {"Content-Type": "application/json"}
-        response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(payload)
-        )
-
-        self.cookie = response.cookies
-
-    def get(self, url):
-        return requests.request("GET", url, cookies=self.cookie)
-
-    def getTasks(self):
-        url = f"{self.url}/tasks?org={self.org}&page_size=1000"
-        response = self.get(url)
-        return response.json()
-
-    def getJobs(self):
-        url = f"{self.url}/jobs?org={self.org}&page_size=1000"
-        response = self.get(url)
-        return response.json()
 
     def matchTaskToJob(self):
         taskToJob = {}
@@ -72,21 +40,6 @@ class app:
         for task in self.tasks["results"]:
             tasksID.append(task["id"])
         return tasksID
-
-    def getLabels(self):
-        url = f"{self.url}/labels?org={self.org}&page_size=1000"
-        response = self.get(url)
-
-        labels = {}
-        for label in response.json()["results"]:
-            labels[label["id"]] = label["name"]
-
-        return labels
-
-    def getAnnotation(self, id):
-        url = f"{self.url}/jobs/{id}/annotations"
-        response = self.get(url)
-        return response.json()
 
     def sumObject(self, obj):
         total = 0
@@ -110,7 +63,7 @@ class app:
 
         for id in tqdm(self.tasksID):
             count = self.initCount()
-            annotations = self.getAnnotation(self.taskToJob[id])
+            annotations = self.API.getAnnotation(self.taskToJob[id])
             try:
                 for annotation in annotations["shapes"]:
                     label = self.labels[annotation["label_id"]]
@@ -173,15 +126,8 @@ class app:
 
 
 if __name__ == "__main__":
-    from dotenv import load_dotenv
+    from utils.config import loadConfig
 
-    load_dotenv()
+    params = loadConfig()
 
-    protocol = os.getenv("PROTOCOL")
-    host = os.getenv("HOST")
-    port = os.getenv("PORT")
-    username = os.getenv("USERNAME")
-    password = os.getenv("PASSWORD")
-    org = os.getenv("ORG")
-
-    app = app(protocol, host, port, username, password, org)
+    app = app(params)
