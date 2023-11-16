@@ -24,9 +24,12 @@ class app:
             else:
                 self.tasksID = self.taskID
         else:
-            self.tasks = self.tasks()
-            self.tasksID = self.tasksID()
-        self.labels = self.labels()
+            self.tasks = self.getTasks()
+            self.tasksID = self.getTasksID()
+
+        self.jobs = self.getJobs()
+        self.taskToJob = self.matchTaskToJob()
+        self.labels = self.getLabels()
 
         self.counts, self.totals = self.count()
         self.result = self.taskResult()
@@ -48,18 +51,29 @@ class app:
     def get(self, url):
         return requests.request("GET", url, cookies=self.cookie)
 
-    def tasks(self):
+    def getTasks(self):
         url = f"{self.url}/tasks?org={self.org}&page_size=1000"
         response = self.get(url)
         return response.json()
 
-    def tasksID(self):
+    def getJobs(self):
+        url = f"{self.url}/jobs?org={self.org}&page_size=1000"
+        response = self.get(url)
+        return response.json()
+
+    def matchTaskToJob(self):
+        taskToJob = {}
+        for job in self.jobs["results"]:
+            taskToJob[job["task_id"]] = job["id"]
+        return taskToJob
+
+    def getTasksID(self):
         tasksID = []
         for task in self.tasks["results"]:
             tasksID.append(task["id"])
         return tasksID
 
-    def labels(self):
+    def getLabels(self):
         url = f"{self.url}/labels?org={self.org}&page_size=1000"
         response = self.get(url)
 
@@ -69,8 +83,8 @@ class app:
 
         return labels
 
-    def annotation(self, id):
-        url = f"{self.url}/tasks/{id}/annotations"
+    def getAnnotation(self, id):
+        url = f"{self.url}/jobs/{id}/annotations"
         response = self.get(url)
         return response.json()
 
@@ -96,7 +110,7 @@ class app:
 
         for id in tqdm(self.tasksID):
             count = self.initCount()
-            annotations = self.annotation(id)
+            annotations = self.getAnnotation(self.taskToJob[id])
             try:
                 for annotation in annotations["shapes"]:
                     label = self.labels[annotation["label_id"]]
@@ -107,7 +121,9 @@ class app:
             try:
                 for track in annotations["tracks"]:
                     label = self.labels[track["label_id"]]
-                    count[label] += len(track["shapes"])
+                    count[label] += (
+                        track["shapes"][-1]["frame"] - track["shapes"][0]["frame"]
+                    )
             except:
                 pass
 
@@ -122,11 +138,13 @@ class app:
         result = {}
         if id is not None:
             result[id] = {}
+            result[id]["jobID"] = self.taskToJob[id]
             result[id]["count"] = self.counts[id]
             result[id]["total"] = self.totals[id]
         else:
             for id in self.tasksID:
                 result[id] = {}
+                result[id]["jobID"] = self.taskToJob[id]
                 result[id]["count"] = self.counts[id]
                 result[id]["total"] = self.totals[id]
         return result
