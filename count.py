@@ -7,6 +7,7 @@ class app:
     def __init__(self, params, taskID=None):
         self.API = api(params)
         self.taskID = taskID
+        self.taskList = params["taskList"]
 
         if self.taskID is not None:
             if type(self.taskID) is int:
@@ -14,7 +15,7 @@ class app:
             else:
                 self.tasksID = self.taskID
         else:
-            self.tasks = self.API.getTasks()
+            self.tasks = self.getTasks()
             self.tasksID = self.getTasksID()
 
         self.jobs = self.API.getJobs()
@@ -34,9 +35,24 @@ class app:
             taskToJob[job["task_id"]] = job["id"]
         return taskToJob
 
+    def getTasks(self):
+        tasks = []
+        if self.taskList is not None:
+            with open(self.taskList, "r") as f:
+                self.taskList = [name for name in f.read().split("\n") if name != ""]
+            for task in self.API.getTasks()["results"]:
+                if task["name"] in self.taskList:
+                    tasks.append(task)
+                    self.taskList.remove(task["name"])
+            if len(self.taskList) > 0:
+                print(f"Task(s) not found: {self.taskList}")
+        else:
+            tasks = self.API.getTasks()["results"]
+        return tasks
+
     def getTasksID(self):
         tasksID = []
-        for task in self.tasks["results"]:
+        for task in self.tasks:
             tasksID.append(task["id"])
         return tasksID
 
