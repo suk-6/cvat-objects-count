@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 from tqdm import tqdm
 from utils.cvat import api
@@ -60,7 +61,11 @@ class app:
             os.mkdir(extractedPath)
             os.system(f"unzip {zipFile} -d {extractedPath} > /dev/null")
 
-            files = os.listdir(f"{extractedPath}/obj_train_data")
+            files = sorted(
+                os.listdir(f"{extractedPath}/obj_train_data"),
+                key=lambda x: int(re.findall("\d+", x)[0]),
+            )
+
             imageFiles = [
                 file
                 for file in files
