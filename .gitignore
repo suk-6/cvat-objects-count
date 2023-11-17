@@ -1,3 +1,6 @@
 .env
 result.json
 __pycache__
+export/
+project_list.txt
+dataset*/
