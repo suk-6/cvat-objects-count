@@ -1,7 +1,6 @@
-import requests
 import json
 from tqdm import tqdm
-from utils.util import api
+from utils.cvat import api
 
 
 class app:
