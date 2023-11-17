@@ -13,6 +13,7 @@ class app:
         self.projectList = params[
             "projectList"
         ]  # A file containing the name of the project to download
+        self.exportFormat = params["exportFormat"]
         self.exportPath = params["exportPath"]
         self.savePath = params["savePath"]
 
@@ -42,9 +43,26 @@ class app:
         return tasks
 
     def export(self):
+        if self.exportFormat == None and self.exportPath == None:
+            raise Exception("Export format and path not specified")
+        elif os.path.exists(self.exportPath) == False:
+            os.mkdir(self.exportPath)
+        elif os.path.isdir(self.exportPath) == False:
+            raise Exception("Export path is not a directory")
+
         exported = []
+
         for task in tqdm(self.tasks, desc="Exporting"):
-            exported.append(self.API.taskDataset(task["id"]))
+            id = task["id"]
+            path = os.path.join(self.exportPath, f"{id}.zip")
+            if os.path.exists(path):
+                pass
+            else:
+                content = self.API.getDataset(id)
+                with open(path, "wb") as f:
+                    f.write(content)
+            exported.append(id)
+
         return exported
 
     def save(self):

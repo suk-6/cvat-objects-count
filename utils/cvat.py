@@ -57,33 +57,17 @@ class api:
         response = self.get(url)
         return response.json()
 
-    def taskDataset(self, id):
-        if self.exportFormat == None and self.exportPath == None:
-            raise Exception("Export format and path not specified")
-        elif os.path.exists(self.exportPath) == False:
-            os.mkdir(self.exportPath)
-        elif os.path.isdir(self.exportPath) == False:
-            raise Exception("Export path is not a directory")
-
-        fname = f"{id}.zip"
-
-        if os.path.exists(os.path.join(self.exportPath, fname)):
-            return id
-
+    def getDataset(self, id):
         url = f"{self.url}/tasks/{id}/dataset?org={self.org}&format={self.exportFormat}&action=download"
         response = self.get(url)
 
         if response.status_code == 200:
-            path = os.path.join(self.exportPath, fname)
-            with open(path, "wb") as f:
-                f.write(response.content)
-            return id
-
+            return response.content
         elif response.status_code == 201:
-            return self.taskDataset(id)
+            return self.getDataset(id)
         elif response.status_code == 202:
             time.sleep(5)
-            return self.taskDataset(id)
+            return self.getDataset(id)
         elif response.status_code == 400:
             raise Exception("Exporting without data is not allowed")
         elif response.status_code == 405:
