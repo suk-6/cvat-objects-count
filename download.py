@@ -9,6 +9,7 @@ from datetime import datetime
 class app:
     def __init__(self, params):
         self.API = api(params)
+        self.now = datetime.now()
 
         self.projectList = params[
             "projectList"
@@ -67,7 +68,7 @@ class app:
 
     def save(self):
         if os.path.exists(self.savePath):
-            self.savePath = f'{self.savePath}_{datetime.now().strftime("%Y%m%d%H%M%S")}'
+            self.savePath = f'{self.savePath}_{self.now.strftime("%Y%m%d%H%M%S")}'
         os.mkdir(self.savePath)
         os.mkdir(f"{self.savePath}/images")
         os.mkdir(f"{self.savePath}/labels")
