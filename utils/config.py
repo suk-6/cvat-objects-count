@@ -10,7 +10,6 @@ def loadConfig():
         "port": os.getenv("PORT"),
         "username": os.getenv("USERNAME"),
         "password": os.getenv("PASSWORD"),
-        "org": os.getenv("ORG"),
         "exportFormat": os.getenv("EXPORT_FORMAT"),
         "exportPath": os.getenv("EXPORT_PATH"),
         "savePath": os.getenv("SAVE_PATH"),

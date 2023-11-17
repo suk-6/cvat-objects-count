@@ -1,4 +1,3 @@
-import os
 import time
 import requests
 from utils.login import login
@@ -11,7 +10,6 @@ class api:
         self.port = params["port"]
         self.username = params["username"]
         self.password = params["password"]
-        self.org = params["org"]
         self.exportFormat = params["exportFormat"]
         self.exportPath = params["exportPath"]
 
@@ -23,27 +21,25 @@ class api:
         return requests.request("GET", url, cookies=self.cookie)
 
     def getProjects(self):
-        url = f"{self.url}/projects?org={self.org}&page_size=1000"
+        url = f"{self.url}/projects?page_size=1000"
         response = self.get(url)
         return response.json()
 
     def getTasks(self, projectID=None):
         if projectID is not None:
-            url = (
-                f"{self.url}/tasks?org={self.org}&page_size=1000&project_id={projectID}"
-            )
+            url = f"{self.url}/tasks?page_size=1000&project_id={projectID}"
         else:
-            url = f"{self.url}/tasks?org={self.org}&page_size=1000"
+            url = f"{self.url}/tasks?page_size=1000"
         response = self.get(url)
         return response.json()
 
     def getJobs(self):
-        url = f"{self.url}/jobs?org={self.org}&page_size=1000"
+        url = f"{self.url}/jobs?page_size=1000"
         response = self.get(url)
         return response.json()
 
     def getLabels(self):
-        url = f"{self.url}/labels?org={self.org}&page_size=1000"
+        url = f"{self.url}/labels?page_size=1000"
         response = self.get(url)
 
         labels = {}
@@ -58,7 +54,9 @@ class api:
         return response.json()
 
     def getDataset(self, id):
-        url = f"{self.url}/tasks/{id}/dataset?org={self.org}&format={self.exportFormat}&action=download"
+        url = (
+            f"{self.url}/tasks/{id}/dataset?format={self.exportFormat}&action=download"
+        )
         response = self.get(url)
 
         if response.status_code == 200:
