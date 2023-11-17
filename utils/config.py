@@ -15,6 +15,7 @@ def loadConfig():
         "exportPath": os.getenv("EXPORT_PATH"),
         "savePath": os.getenv("SAVE_PATH"),
         "projectList": os.getenv("PROJECT_LIST"),
+        "taskList": os.getenv("TASK_LIST"),
     }
 
     print(params)

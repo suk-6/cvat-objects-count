@@ -14,6 +14,9 @@ class app:
         self.projectList = params[
             "projectList"
         ]  # A file containing the name of the project to download
+        self.taskList = params[
+            "taskList"
+        ]  # A file containing the name of the task to download
         self.exportFormat = params["exportFormat"]
         self.exportPath = params["exportPath"]
         self.savePath = params["savePath"]
@@ -39,8 +42,20 @@ class app:
 
     def getTasks(self):
         tasks = []
-        for project in self.projects["results"]:
-            tasks += self.API.getTasks(project["id"])["results"]
+        if self.projectList is not None:
+            for project in self.projects["results"]:
+                tasks += self.API.getTasks(project["id"])["results"]
+        elif self.taskList is not None:
+            with open(self.taskList, "r") as f:
+                self.taskList = [name for name in f.read().split("\n") if name != ""]
+            for task in self.API.getTasks()["results"]:
+                if task["name"] in self.taskList:
+                    tasks.append(task)
+                    self.taskList.remove(task["name"])
+            if len(self.taskList) > 0:
+                print(f"Task(s) not found: {self.taskList}")
+        else:
+            tasks = self.API.getTasks()["results"]
         return tasks
 
     def export(self):
@@ -68,10 +83,12 @@ class app:
 
     def save(self):
         if os.path.exists(self.savePath):
-            self.savePath = f'{self.savePath}_{self.now.strftime("%Y%m%d%H%M%S")}'
-        os.mkdir(self.savePath)
-        os.mkdir(f"{self.savePath}/images")
-        os.mkdir(f"{self.savePath}/labels")
+            if input("Are you sure merge all the dataset? (y/n): ") == "n":
+                self.savePath = f'{self.savePath}_{self.now.strftime("%Y%m%d%H%M%S")}'
+        else:
+            os.mkdir(self.savePath)
+            os.mkdir(f"{self.savePath}/images")
+            os.mkdir(f"{self.savePath}/labels")
 
         for id in tqdm(self.exported, desc="Extracting"):
             id = str(id)
