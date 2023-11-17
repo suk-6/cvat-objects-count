@@ -19,12 +19,12 @@ PROJECT_LIST='./project_list.txt'
 
 ## Count Objects
 
-    ```bash
-    python count.py
-    ```
+```bash
+python count.py
+```
 
 ## Download Dataset
 
-    ```bash
-    python download.py
-    ```
+```bash
+python download.py
+```
