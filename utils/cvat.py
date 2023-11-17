@@ -1,7 +1,5 @@
-import re
 import os
 import time
-import shutil
 import requests
 from utils.login import login
 
