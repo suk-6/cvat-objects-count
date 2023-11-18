@@ -1,8 +1,11 @@
-def loadConfig():
+def loadConfig(path=None):
     import os
     from dotenv import load_dotenv
 
-    load_dotenv()
+    if path is not None:
+        load_dotenv(dotenv_path=path)
+    else:
+        load_dotenv()
 
     params = {
         "protocol": os.getenv("PROTOCOL"),
