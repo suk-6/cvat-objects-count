@@ -10,11 +10,11 @@ HOST=app.cvat.ai
 PORT=443
 USERNAME=username
 PASSWORD=password
-ORG=orgnization
 EXPORT_FORMAT='YOLO 1.1'
 EXPORT_PATH='./export'
 SAVE_PATH='./data'
 PROJECT_LIST='./project_list.txt'
+TASK_LIST='./task_list.txt'
 ```
 
 ## Count Objects
