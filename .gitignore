@@ -1,10 +1,12 @@
 .env
+*.env
 __pycache__
 
 export/
 dataset*/
+dataset.zip
 
 result.json
 
-project_list.txt
-task_list.txt
+project_list*.txt
+task_list*.txt
