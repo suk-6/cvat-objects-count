@@ -1,5 +1,6 @@
 def loadConfig(path=None):
     import os
+    from pprint import pprint
     from dotenv import load_dotenv
 
     if path is not None:
@@ -20,5 +21,6 @@ def loadConfig(path=None):
         "taskList": os.getenv("TASK_LIST"),
     }
 
-    print(params)
+    pprint(params)
+    print()
     return params
