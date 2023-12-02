@@ -210,7 +210,7 @@ class app:
 if __name__ == "__main__":
     from utils.config import loadConfig
 
-    # params = loadConfig()
-    params = loadConfig("cvat.ai.env")
+    params = loadConfig()
+    # params = loadConfig("cvat.ai.env")
 
     app = app(params)
